@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
-use CodeIgniter\Controller;
 
 class UserController extends BaseController
 {
@@ -91,7 +90,7 @@ class UserController extends BaseController
         } else {
             return $this->response->setStatusCode(500)->setJSON([
                 'success' => false,
-                'message' => 'Failed to register the user'
+                'errors' => 'Failed to register the user'
             ]);
         }
     }
@@ -108,20 +107,13 @@ class UserController extends BaseController
 
         $db = \Config\Database::connect();
 
-        // $builder = $db->table('users')->select('*')->where('email', $email);
-        // $query = $builder->get();
-        // $userExists = $query->getRow();
-
         $builder = $db->table('users');
 
-        $builder->where('email', $email); // Adjust for custom primary key
+        $builder->where('email', $email);
 
         $query = $builder->get();
+
         $userExists = $query->getRowArray();
-        // echo "<pre>";
-        // print_r($userExists['password']);
-        // echo "</pre>";
-        // exit;
 
         if ($userExists && password_verify($this->request->getPost('password'), $userExists['password'])) {
 
@@ -142,11 +134,6 @@ class UserController extends BaseController
 
     public function setUserSession($user)
     {
-        // echo "<pre>";
-        // print_r($user);
-        // echo "</pre>";
-        // exit;
-
         $data = [
             'id' => $user['id'],
             'user_type' => $user['user_type'],
@@ -158,22 +145,55 @@ class UserController extends BaseController
 
     public function edit($id)
     {
-        // echo "<pre>";
-        // print_r($id);
-        // echo "</pre>";
-        // exit;
-
         $user = new UserModel();
         $data['user'] = $user->find($id);
 
-        // echo "<pre>";
-        // print_r($data['user']);
-        // echo "</pre>";
-        // exit;
         if (!$data['user']) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('User not found');
         }
 
         return view('client/edit', ['user' => $data['user']]);
+    }
+
+    public function update()
+    {
+        $user = new UserModel();
+        $id = $this->request->getPost('id');
+
+        $validation = service('validation');
+        $rules = [
+            'city' => 'required',
+            'state' => 'required',
+            'zip_code' => 'required'
+        ];
+
+        $validation->setRules($rules);
+
+        if (!$validation->withRequest($this->request)->run()) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'success' => false,
+                'errors' => $validation->getErrors()
+            ]);
+        }
+
+
+        $data = [
+            'city' => $this->request->getPost('city'),
+            'state' => $this->request->getPost('state'),
+            'zip_code' => $this->request->getPost('zip_code')
+        ];
+
+        if ($user->update($id, $data)) {
+
+            return $this->response->setStatusCode(200)->setJSON([
+                'success' => true,
+                'message' => 'User updated successfully'
+            ]);
+        } else {
+            return $this->response->setStatusCode(500)->setJSON([
+                'success' => false,
+                'errors' => 'Failed to update the user'
+            ]);
+        }
     }
 }

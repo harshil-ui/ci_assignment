@@ -17,5 +17,6 @@ $routes->post('/post-login', 'UserController::postLogin');
 
 $routes->get('/logout', 'UserController::logOut');
 
-$routes->get('edit-user/(:num)', 'UserController::edit/$1');
+$routes->get('/edit-user/(:num)', 'UserController::edit/$1');
 
+$routes->post('/update-user', 'UserController::update');

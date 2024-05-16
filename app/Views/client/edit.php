@@ -62,4 +62,27 @@ Edit user
 
 <?= $this->section('scripts') ?>
 
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#update_user').on('submit', function(event) {
+            event.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: '<?= site_url('update-user'); ?>',
+                data: $(this).serialize(),
+                dataType: 'JSON',
+                complete(xhr) {
+                    let jsonResponse = JSON.parse(xhr.responseText);
+                    if (jsonResponse.success) {
+                        alert(jsonResponse.message);
+                        window.location.href = '/';
+                    } else {
+                        alert(JSON.stringify(jsonResponse.errors));
+                    }
+                }
+            });
+        });
+    });
+</script>
+
 <?= $this->endSection() ?>
