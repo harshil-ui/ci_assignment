@@ -55,7 +55,7 @@ Login
                         alert(data.message);
                         window.location.href = '/';
                     } else {
-                        alert('Errors: ' + JSON.stringify(data.errors));
+                        alert(data.message);
                     }
                 }
             });

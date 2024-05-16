@@ -50,7 +50,7 @@ class UserController extends BaseController
             'first_name' => $this->request->getPost('first_name'),
             'last_name' => $this->request->getPost('last_name'),
             'email' => $this->request->getPost('email'),
-            'password' => $this->request->getPost('password'),
+            'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
             'user_type' => $this->request->getPost('user_type')
         ];
 
@@ -70,6 +70,32 @@ class UserController extends BaseController
         }
     }
 
+    public function logOut()
+    {
+        session()->destroy();
+        return redirect('/');
+    }
+
+    public function postLogin()
+    {
+        $user = new UserModel();
+
+        $userExists = $user->where('email', $this->request->getPost('email'))->first();
+
+        if ($userExists && password_verify($this->request->getPost('password'), $userExists['password'])) {
+            $this->setUserSession($userExists);
+
+            return $this->response->setStatusCode(200)->setJSON([
+                'success' => true,
+                'message' => 'User logged in successfully'
+            ]);
+        }
+        return $this->response->setJSON([
+            'success' => false,
+            'message' => 'Invalid credentials!'
+        ]);
+    }
+
     public function setUserSession($user)
     {
         $data = [
@@ -79,20 +105,4 @@ class UserController extends BaseController
         ];
         session()->set($data);
     }
-
-    public function logOut()
-    {
-        session()->destroy();
-        return redirect('/');
-    }
-
-    // public function postLogin()
-    // {
-    //     $user = new UserModel();
-
-    //     $userExists = $user->where('email', $this->request->getPost('email'))->first();
-
-    //     var_dump($userExists);
-    //     exit;
-    // }
 }
