@@ -9,6 +9,8 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
     <title>Hello, world!</title>
 </head>
 
@@ -19,6 +21,53 @@
 
     <?php if (session()->get('isLoggedIn') == false) { ?>
         <a href="<?= site_url('login') ?>">Login</a>
+    <?php } ?>
+    <?php
+    // echo "<pre>";
+    // print_r($users);
+    // echo "</pre>";
+    // exit;
+    ?>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">Sr no.</th>
+                <th scope="col">First name</th>
+                <th scope="col">Last name</th>
+                <th scope="col">Email</th>
+                <th scope="col">City</th>
+                <th scope="col">State</th>
+                <th scope="col">Zipcode</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (isset($users)) {
+                foreach ($users as $key => $value) {
+            ?>
+                    <tr>
+                        <th scope="row"><?= ++$key; ?></th>
+                        <td><?= $value['first_name']; ?></td>
+                        <td><?= $value['last_name']; ?></td>
+                        <td><?= $value['email'] ?></td>
+                        <td><?= $value['city'] ?></td>
+                        <td><?= $value['state'] ?></td>
+                        <td><?= $value['zip_code'] ?></td>
+                        <td>
+                            <a href="<?= site_url('edit-user/' . $value['id']); ?>">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+            <?php
+                }
+            }  ?>
+        </tbody>
+    </table>
+
+    <?php if (session()->get('isLoggedIn') == false) { ?>
+        <a href="<?= site_url('register') ?>">Register</a>
     <?php } ?>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
