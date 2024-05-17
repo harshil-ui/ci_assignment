@@ -33,22 +33,25 @@ class CreateUsersTable extends Migration
                 'constraint' => '255',
             ],
             'user_type' => [
-                'type'       => 'ENUM("Employee","Dealer")', // Correct ENUM definition
+                'type'       => 'ENUM("Employee","Dealer")',
                 'default'    => 'Employee',
                 'null'       => false,
             ],
-            'created_at' => [
-                'type' => 'DATETIME',
-                'null' => true,
+            'city' => [
+                'type' => 'VARCHAR',
+                'constraint' => '100',
+                'null' => true
             ],
-            'updated_at' => [
-                'type' => 'DATETIME',
-                'null' => true,
+            'state' => [
+                'type' => 'VARCHAR',
+                'constraint' => '100',
+                'null' => true
             ],
-            'deleted_at' => [
-                'type' => 'DATETIME',
-                'null' => true,
-            ],
+            'zip_code' => [
+                'type' => 'VARCHAR',
+                'constraint' => '100',
+                'null' => true
+            ]
         ]);
 
         $this->forge->addKey('id', true);
