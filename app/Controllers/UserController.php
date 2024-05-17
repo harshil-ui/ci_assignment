@@ -9,13 +9,29 @@ class UserController extends BaseController
 
     public function index()
     {
-        $db = \Config\Database::connect();
-        $builder = $db->table('users');
-        $builder->where('user_type', 'Dealer');
-        $query = $builder->get();
-        $data = $query->getResultArray();
+        if (session()->get('isLoggedIn')) {
+            $user = new UserModel();
 
-        return view('client/index', ['users' => $data]);
+            $query = $this->request->getGet('query');
+
+            $users = $user->orderBy('id', 'DESC')
+                ->where('user_type', 'Dealer');
+
+            if (!empty($query)) {
+                $users = $users->like('zip_code', $query);
+            }
+
+            $users = $users->paginate(10);
+
+            $data = [
+                'users' => $users,
+                'pager' => $user->pager,
+            ];
+
+            return view('client/index', $data);
+        }
+
+        return redirect('login');
     }
 
     public function register()
@@ -97,8 +113,12 @@ class UserController extends BaseController
 
     public function logOut()
     {
-        session()->destroy();
-        return redirect('/');
+        if (session()->get('isLoggedIn')) {
+            session()->destroy();
+            return redirect('/');
+        }
+
+        return redirect('login');
     }
 
     public function postLogin()
@@ -132,27 +152,21 @@ class UserController extends BaseController
         ]);
     }
 
-    public function setUserSession($user)
-    {
-        $data = [
-            'id' => $user['id'],
-            'user_type' => $user['user_type'],
-            'isLoggedIn' => true,
-        ];
-        session()->set($data);
-        session()->regenerate(true);
-    }
-
     public function edit($id)
     {
-        $user = new UserModel();
-        $data['user'] = $user->find($id);
+        if (session()->get('isLoggedIn')) {
 
-        if (!$data['user']) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('User not found');
+            $user = new UserModel();
+            $data['user'] = $user->find($id);
+
+            if (!$data['user']) {
+                throw new \CodeIgniter\Exceptions\PageNotFoundException('User not found');
+            }
+
+            return view('client/edit', ['user' => $data['user']]);
         }
 
-        return view('client/edit', ['user' => $data['user']]);
+        return redirect('login');
     }
 
     public function update()
@@ -195,5 +209,16 @@ class UserController extends BaseController
                 'errors' => 'Failed to update the user'
             ]);
         }
+    }
+
+    public function setUserSession($user)
+    {
+        $data = [
+            'id' => $user['id'],
+            'user_type' => $user['user_type'],
+            'isLoggedIn' => true,
+        ];
+        session()->set($data);
+        session()->regenerate(true);
     }
 }
